@@ -12,7 +12,7 @@ export function App() {
   const animationFrameRef = useRef<number | null>(null);
   const celebrantIntervalRef = useRef<NodeJS.Timeout | null>(null);
   // List of April celebrants
-  const celebrants = ['Lilibeth Alfonso'];
+  const celebrants = ['Mama Lilibeth Alfonso'];
   // Function to play the birthday song
   const playBirthdaySong = () => {
     if (audioRef.current && !audioPlayed) {
