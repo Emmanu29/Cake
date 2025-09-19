@@ -127,16 +127,7 @@ export function App() {
       }
     };
   }, []);
-  // Handle click on candle for fallback
-  const handleCandleClick = () => {
-    if (isCandieLit) {
-      setIsCandleLit(false);
-      setShowConfetti(true);
-      startCelebrantDisplay();
-      // Play music when candle is blown out
-      playBirthdaySong();
-    }
-  };
+  
   return <div className="min-h-screen w-full overflow-hidden bg-gradient-to-b from-[#8d96e9] to-[#f9f871]">
       <audio ref={audioRef} src="/music/Pagbati.mp3" />
       {/* Title */}
@@ -148,30 +139,43 @@ export function App() {
         </div>
       </div>
       {showConfetti && <div className="confetti-container">
-          {/* Red hearts - continuous animation */}
-          {[...Array(20)].map((_, i) => <div key={`red-${i}`} className="confetti heart red" style={{
+          {/* Beautiful heart confetti - reduced amount for elegance */}
+          {[...Array(15)].map((_, i) => <div key={`red-${i}`} className="confetti heart red" style={{
+        left: `${Math.random() * 100}%`,
+        animationDelay: `${Math.random() * 4}s`,
+        animationIterationCount: 'infinite',
+        animationDuration: `${4 + Math.random() * 2}s`,
+        transform: `rotate(${Math.random() * 360}deg)`
+      }}></div>)}
+          {[...Array(15)].map((_, i) => <div key={`blue-${i}`} className="confetti heart blue" style={{
+        left: `${Math.random() * 100}%`,
+        animationDelay: `${Math.random() * 4}s`,
+        animationIterationCount: 'infinite',
+        animationDuration: `${4 + Math.random() * 2}s`,
+        transform: `rotate(${Math.random() * 360}deg)`
+      }}></div>)}
+          {[...Array(15)].map((_, i) => <div key={`yellow-${i}`} className="confetti heart yellow" style={{
+        left: `${Math.random() * 100}%`,
+        animationDelay: `${Math.random() * 4}s`,
+        animationIterationCount: 'infinite',
+        animationDuration: `${4 + Math.random() * 2}s`,
+        transform: `rotate(${Math.random() * 360}deg)`
+      }}></div>)}
+          {[...Array(15)].map((_, i) => <div key={`white-${i}`} className="confetti heart white" style={{
+        left: `${Math.random() * 100}%`,
+        animationDelay: `${Math.random() * 4}s`,
+        animationIterationCount: 'infinite',
+        animationDuration: `${4 + Math.random() * 2}s`,
+        transform: `rotate(${Math.random() * 360}deg)`
+      }}></div>)}
+          {/* Add some sparkles for extra beauty */}
+          {[...Array(10)].map((_, i) => <div key={`sparkle-${i}`} className="confetti sparkle" style={{
         left: `${Math.random() * 100}%`,
         animationDelay: `${Math.random() * 3}s`,
-        animationIterationCount: 'infinite'
-      }}></div>)}
-          {/* Blue hearts - continuous animation */}
-          {[...Array(20)].map((_, i) => <div key={`blue-${i}`} className="confetti heart blue" style={{
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 3}s`,
-        animationIterationCount: 'infinite'
-      }}></div>)}
-          {/* Yellow hearts - continuous animation */}
-          {[...Array(20)].map((_, i) => <div key={`yellow-${i}`} className="confetti heart yellow" style={{
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 3}s`,
-        animationIterationCount: 'infinite'
-      }}></div>)}
-          {/* White hearts - continuous animation */}
-          {[...Array(20)].map((_, i) => <div key={`white-${i}`} className="confetti heart white" style={{
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 3}s`,
-        animationIterationCount: 'infinite'
-      }}></div>)}
+        animationIterationCount: 'infinite',
+        animationDuration: `${2 + Math.random() * 1}s`,
+        fontSize: `${10 + Math.random() * 8}px`
+      }}>✨</div>)}
         </div>}
       {/* Balanced Celebrant name display with birthday-themed design */}
       {!isCandieLit && <div className="celebrant-name-display" style={{
@@ -221,12 +225,12 @@ export function App() {
         <div className="drip drip2"></div>
         <div className="drip drip3"></div>
         <div className="candle">
-          {isCandieLit ? <div className="flame" onClick={handleCandleClick}></div> : <div className="w-1 h-10 bg-gray-300 opacity-70 mx-auto animate-smoke"></div>}
+          {isCandieLit ? <div className="flame"></div> : <div className="w-1 h-10 bg-gray-300 opacity-70 mx-auto animate-smoke"></div>}
         </div>
       </div>
-      {/* Message */}
+      {/* Message - Only show microphone instruction */}
       {isCandieLit && <div className="message">
-          {micPermission === true ? 'Blow into your mic' : 'Touch the flame to blow'}
+          {micPermission === true ? 'Blow the candle!' : micPermission === false ? 'Please allow microphone access to blow out the candle' : 'Requesting microphone access...'}
         </div>}
       
       {/* Add keyframe animation for floating effect */}
