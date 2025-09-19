@@ -138,7 +138,7 @@ export function App() {
     }
   };
   return <div className="min-h-screen w-full overflow-hidden bg-gradient-to-b from-[#8d96e9] to-[#f9f871]">
-      <audio ref={audioRef} src="src/music/pagbati.mp3" />
+      <audio ref={audioRef} src="/music/Pagbati.mp3" />
       {/* Title */}
       <div className="happy-sabbath">
         <div>Happy Birthday</div>
