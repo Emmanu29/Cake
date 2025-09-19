@@ -22,16 +22,24 @@ export function App() {
       setAudioPlayed(true);
     }
   };
-  // Function to automatically access microphone
-  const initializeMicrophone = async () => {
+  // Function to handle blow detection
+  const handleBlowOut = () => {
+    if (isCandieLit) {
+      setIsCandleLit(false);
+      setShowConfetti(true);
+      startCelebrantDisplay();
+      playBirthdaySong();
+    }
+  };
+  
+  // Function to try microphone access
+  const tryMicrophoneAccess = async () => {
     try {
-      // For mobile devices, try to get microphone access automatically
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
-          autoGainControl: false,
-          sampleRate: 44100
+          autoGainControl: false
         }
       });
       
@@ -50,41 +58,9 @@ export function App() {
       monitorSoundLevel();
       
     } catch (error) {
-      console.log('Microphone access not available:', error);
+      console.log('Microphone not available, using touch/click detection');
       setMicPermission(false);
-      
-      // For mobile devices, try alternative approach
-      if (navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
-        // On mobile, we'll use a different approach - detect any user interaction
-        setupMobileBlowDetection();
-      }
     }
-  };
-  
-  // Mobile-specific blow detection using device motion and touch
-  const setupMobileBlowDetection = () => {
-    let interactionDetected = false;
-    
-    // Listen for any user interaction
-    const handleInteraction = () => {
-      if (!interactionDetected && isCandieLit) {
-        interactionDetected = true;
-        // Simulate blow detection after user interaction
-        setTimeout(() => {
-          if (isCandieLit) {
-            setIsCandleLit(false);
-            setShowConfetti(true);
-            startCelebrantDisplay();
-            playBirthdaySong();
-          }
-        }, 1000);
-      }
-    };
-    
-    // Add multiple event listeners for mobile
-    document.addEventListener('touchstart', handleInteraction, { once: true });
-    document.addEventListener('click', handleInteraction, { once: true });
-    document.addEventListener('keydown', handleInteraction, { once: true });
   };
   
   // Function to monitor sound levels for blow detection
@@ -121,11 +97,7 @@ export function App() {
         blowCounter++;
         console.log('Blowing detected! Count:', blowCounter, 'Volume:', averageVolume);
         if (blowCounter >= blowThreshold && isCandieLit) {
-          setIsCandleLit(false);
-          setShowConfetti(true);
-          startCelebrantDisplay();
-          // Play music when candle is blown out
-          playBirthdaySong();
+          handleBlowOut();
           if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
             animationFrameRef.current = null;
@@ -153,16 +125,13 @@ export function App() {
       });
     }, 4000);
   };
-  // Initialize microphone automatically on component mount
+  // Initialize on component mount
   useEffect(() => {
-    // Small delay to ensure page is fully loaded
-    const timer = setTimeout(() => {
-      initializeMicrophone();
-    }, 500);
+    // Try microphone access
+    tryMicrophoneAccess();
     
     // Clean up animation frame and interval on unmount
     return () => {
-      clearTimeout(timer);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -183,43 +152,35 @@ export function App() {
         </div>
       </div>
       {showConfetti && <div className="confetti-container">
-          {/* Beautiful heart confetti - reduced amount for elegance */}
-          {[...Array(15)].map((_, i) => <div key={`red-${i}`} className="confetti heart red" style={{
+          {/* Minimal confetti - only 8 hearts total */}
+          {[...Array(2)].map((_, i) => <div key={`red-${i}`} className="confetti heart red" style={{
         left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 4}s`,
+        animationDelay: `${Math.random() * 2}s`,
         animationIterationCount: 'infinite',
         animationDuration: `${4 + Math.random() * 2}s`,
         transform: `rotate(${Math.random() * 360}deg)`
       }}></div>)}
-          {[...Array(15)].map((_, i) => <div key={`blue-${i}`} className="confetti heart blue" style={{
+          {[...Array(2)].map((_, i) => <div key={`blue-${i}`} className="confetti heart blue" style={{
         left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 4}s`,
+        animationDelay: `${Math.random() * 2}s`,
         animationIterationCount: 'infinite',
         animationDuration: `${4 + Math.random() * 2}s`,
         transform: `rotate(${Math.random() * 360}deg)`
       }}></div>)}
-          {[...Array(15)].map((_, i) => <div key={`yellow-${i}`} className="confetti heart yellow" style={{
+          {[...Array(2)].map((_, i) => <div key={`yellow-${i}`} className="confetti heart yellow" style={{
         left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 4}s`,
+        animationDelay: `${Math.random() * 2}s`,
         animationIterationCount: 'infinite',
         animationDuration: `${4 + Math.random() * 2}s`,
         transform: `rotate(${Math.random() * 360}deg)`
       }}></div>)}
-          {[...Array(15)].map((_, i) => <div key={`white-${i}`} className="confetti heart white" style={{
+          {[...Array(2)].map((_, i) => <div key={`white-${i}`} className="confetti heart white" style={{
         left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 4}s`,
+        animationDelay: `${Math.random() * 2}s`,
         animationIterationCount: 'infinite',
         animationDuration: `${4 + Math.random() * 2}s`,
         transform: `rotate(${Math.random() * 360}deg)`
       }}></div>)}
-          {/* Add some sparkles for extra beauty */}
-          {[...Array(10)].map((_, i) => <div key={`sparkle-${i}`} className="confetti sparkle" style={{
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 3}s`,
-        animationIterationCount: 'infinite',
-        animationDuration: `${2 + Math.random() * 1}s`,
-        fontSize: `${10 + Math.random() * 8}px`
-      }}>✨</div>)}
         </div>}
       {/* Balanced Celebrant name display with birthday-themed design */}
       {!isCandieLit && <div className="celebrant-name-display" style={{
@@ -269,12 +230,12 @@ export function App() {
         <div className="drip drip2"></div>
         <div className="drip drip3"></div>
         <div className="candle">
-          {isCandieLit ? <div className="flame"></div> : <div className="w-1 h-10 bg-gray-300 opacity-70 mx-auto animate-smoke"></div>}
+          {isCandieLit ? <div className="flame" onClick={handleBlowOut}></div> : <div className="w-1 h-10 bg-gray-300 opacity-70 mx-auto animate-smoke"></div>}
         </div>
       </div>
-      {/* Message - Simplified for mobile */}
+      {/* Message */}
       {isCandieLit && <div className="message">
-          {micPermission === true ? 'Blow into your microphone!' : micPermission === false ? 'Tap anywhere to blow out the candle!' : 'Loading...'}
+          {micPermission === true ? 'Blow into your microphone!' : 'Tap the flame to blow out the candle!'}
         </div>}
       
       {/* Add keyframe animation for floating effect */}
