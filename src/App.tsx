@@ -22,17 +22,21 @@ export function App() {
       setAudioPlayed(true);
     }
   };
-  // Function to request microphone access
-  const requestMicAccess = async () => {
+  // Function to automatically access microphone
+  const initializeMicrophone = async () => {
     try {
+      // For mobile devices, try to get microphone access automatically
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
-          autoGainControl: false
+          autoGainControl: false,
+          sampleRate: 44100
         }
       });
+      
       setMicPermission(true);
+      
       // Set up audio analysis
       const audioContext = new AudioContext();
       const analyser = audioContext.createAnalyser();
@@ -41,13 +45,48 @@ export function App() {
       const microphone = audioContext.createMediaStreamSource(stream);
       microphone.connect(analyser);
       analyserRef.current = analyser;
+      
       // Start monitoring sound levels
       monitorSoundLevel();
+      
     } catch (error) {
-      console.error('Microphone access denied:', error);
+      console.log('Microphone access not available:', error);
       setMicPermission(false);
+      
+      // For mobile devices, try alternative approach
+      if (navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+        // On mobile, we'll use a different approach - detect any user interaction
+        setupMobileBlowDetection();
+      }
     }
   };
+  
+  // Mobile-specific blow detection using device motion and touch
+  const setupMobileBlowDetection = () => {
+    let interactionDetected = false;
+    
+    // Listen for any user interaction
+    const handleInteraction = () => {
+      if (!interactionDetected && isCandieLit) {
+        interactionDetected = true;
+        // Simulate blow detection after user interaction
+        setTimeout(() => {
+          if (isCandieLit) {
+            setIsCandleLit(false);
+            setShowConfetti(true);
+            startCelebrantDisplay();
+            playBirthdaySong();
+          }
+        }, 1000);
+      }
+    };
+    
+    // Add multiple event listeners for mobile
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('keydown', handleInteraction, { once: true });
+  };
+  
   // Function to monitor sound levels for blow detection
   const monitorSoundLevel = () => {
     if (!analyserRef.current) return;
@@ -114,11 +153,16 @@ export function App() {
       });
     }, 4000);
   };
-  // Request microphone access on component mount
+  // Initialize microphone automatically on component mount
   useEffect(() => {
-    requestMicAccess();
+    // Small delay to ensure page is fully loaded
+    const timer = setTimeout(() => {
+      initializeMicrophone();
+    }, 500);
+    
     // Clean up animation frame and interval on unmount
     return () => {
+      clearTimeout(timer);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -228,9 +272,9 @@ export function App() {
           {isCandieLit ? <div className="flame"></div> : <div className="w-1 h-10 bg-gray-300 opacity-70 mx-auto animate-smoke"></div>}
         </div>
       </div>
-      {/* Message - Only show microphone instruction */}
+      {/* Message - Simplified for mobile */}
       {isCandieLit && <div className="message">
-          {micPermission === true ? 'Blow the candle!' : micPermission === false ? 'Please allow microphone access to blow out the candle' : 'Requesting microphone access...'}
+          {micPermission === true ? 'Blow into your microphone!' : micPermission === false ? 'Tap anywhere to blow out the candle!' : 'Loading...'}
         </div>}
       
       {/* Add keyframe animation for floating effect */}
